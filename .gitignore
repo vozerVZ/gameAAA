@@ -1,2 +1,4 @@
 .idea/
 *.class
+venv/
+__pycache__/
