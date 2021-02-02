@@ -23,9 +23,17 @@ YELLOW = [247, 242, 26]
 BLUE = [135, 206, 250]
 colors_arr = [BLACK, WHITE, GREEN, GRAY, RED, YELLOW, BLUE]
 
-hero = player.Player(50, 350, 100, 0, 10, 2)
+hero = player.Player(400, 500, 100, 0, 10, 2)
 
-dev_loc = location.Location(-1, -1, -1, -1, -1, "dev_loc", "dev_loc.txt")
+locations = []
+
+dev_loc1 = location.Location(1, -1, -1, -1, -2, "dev_loc1", "dev_loc1.txt")
+
+spawn_forest = location.Location(-1, -1, 1, -1, 0, "spawn_forest", "spawn_forest.txt")
+sandras_field_1 = location.Location(-1, -1, -1, 0, 1, "sandras_field_1",  "sandras_field_1.txt")
+
+locations.append(spawn_forest)
+locations.append(sandras_field_1)
 
 pygame.mouse.set_visible(False)
 
@@ -39,9 +47,9 @@ while not done:
 
     screen.fill(WHITE)
 
-    dev_loc.draw(screen, colors_arr)
+    locations[hero.location].draw(screen)
 
-    hero.update(screen, RED, screen_width, screen_height)
+    hero.update(screen, RED, screen_width, screen_height, locations)
 
     pygame.display.flip()
     clock.tick(60)
