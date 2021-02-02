@@ -4,6 +4,8 @@ import random
 undefined_tile = pygame.image.load("res/tiles/undefined.png")
 dirt_tile = pygame.image.load("res/tiles/dirt.png")
 grass_tile = pygame.image.load("res/tiles/grass.png")
+rock_tile = pygame.image.load("res/tiles/rock.png")
+tiles = [dirt_tile, grass_tile, rock_tile]
 
 
 class Location:
@@ -21,12 +23,10 @@ class Location:
         f.close()
 
 
-    def draw(self, sc, clrs):
+    def draw(self, sc):
         for x in range(32):
             for y in range(24):
-                if self.location_matrix[y][x] == "0":
-                    sc.blit(dirt_tile, (x * 25, y * 25))
-                elif self.location_matrix[y][x] == "1":
-                    sc.blit(grass_tile, (x * 25, y * 25))
+                if int(self.location_matrix[y][x]) < len(tiles):
+                    sc.blit(tiles[int(self.location_matrix[y][x])], (x * 25, y * 25))
                 else:
                     sc.blit(undefined_tile, (x * 25, y * 25))
