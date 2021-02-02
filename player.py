@@ -10,6 +10,7 @@ class Player:
         self.dmg = damage
         self.spd = speed
         self.radius = 15
+        self.location = 0
 
     def draw(self, sc, color):
         pygame.draw.circle(sc, color, (self.x, self.y), self.radius)
@@ -26,17 +27,35 @@ class Player:
         if keys[pygame.K_d]:
             self.x += self.spd
 
-    def update(self, sc, color, sc_w, sc_h):
+    def update(self, sc, color, sc_w, sc_h, loc_arr):
         self.move()
 
-        if self.x <= self.radius:
-            self.x = self.radius
-        if self.x >= sc_w - self.radius:
-            self.x = sc_w - self.radius
+        if self.x <= self.radius:  # left corner
+            if loc_arr[self.location].l_n != -1:
+                self.x = sc_w - self.radius - 1
+                self.location = loc_arr[self.location].l_n
+            else:
+                self.x = self.radius
 
-        if self.y <= self.radius:
-            self.y = self.radius
-        if self.y >= sc_h - self.radius:
-            self.y = sc_h - self.radius
+        if self.x >= sc_w - self.radius:  # right corner
+            if loc_arr[self.location].r_n != -1:
+                self.x = self.radius + 1
+                self.location = loc_arr[self.location].r_n
+            else:
+                self.x = sc_w - self.radius
+
+        if self.y <= self.radius:  # upper corner
+            if loc_arr[self.location].u_n != -1:
+                self.y = sc_h - self.radius - 1
+                self.location = loc_arr[self.location].u_n
+            else:
+                self.y = self.radius
+
+        if self.y >= sc_h - self.radius:  # bottom corner
+            if loc_arr[self.location].d_n != -1:
+                self.y = self.radius + 1
+                self.location = loc_arr[self.location].d_n
+            else:
+                self.y = sc_h - self.radius
 
         self.draw(sc, color)
