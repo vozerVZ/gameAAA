@@ -6,16 +6,28 @@ class Player:
         self.x = x_pos
         self.y = y_pos
         self.hp = health
+        self.maxhp = health
         self.xp = exp
         self.dmg = damage
         self.spd = speed
         self.radius = 15
         self.location = 0
 
+        self.attack_timer = 0
+        self.max_attack_timer = 100
+        self.revive_timer = 0
+        self.max_revive_timer = 2000
+
+    def get_damage(self, damage):
+        self.hp -= damage
+
+        if self.hp <= 0:
+            self.revive_timer = self.max_revive_timer
+
     def draw(self, sc, color):
         pygame.draw.circle(sc, color, (self.x, self.y), self.radius)
 
-    def move(self):
+    def move(self, global_ent_map):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_w]:
@@ -27,9 +39,17 @@ class Player:
         if keys[pygame.K_d]:
             self.x += self.spd
 
-    def update(self, sc, color, sc_w, sc_h, loc_arr):
-        self.move()
+        if keys[pygame.K_RETURN]:
+            if self.attack_timer == 0:
+                for i in global_ent_map[self.location]:
+                    if abs(self.x - i.x) <= (self.radius * 1.5 + i.radius) and abs(self.y - i.y) <= (self.radius * 1.5 + i.radius):
+                        i.get_damage(self.dmg)
+                        i.setBehaviorAggressive()
+                        i.dead_check()
 
+                        self.attack_timer = self.max_attack_timer
+
+    def update(self, sc, color, sc_w, sc_h, loc_arr, global_ent_map):
         if self.x <= self.radius:  # left corner
             if loc_arr[self.location].l_n != -1:
                 self.x = sc_w - self.radius - 1
@@ -58,4 +78,20 @@ class Player:
             else:
                 self.y = sc_h - self.radius
 
-        self.draw(sc, color)
+        #timers
+        if self.attack_timer > 0:
+            self.attack_timer -= 1
+
+        if self.revive_timer == 1:
+            self.revive_timer = 0
+            self.hp = self.maxhp
+            self.location = 0
+            self.x = 400
+            self.y = 500
+        elif self.revive_timer > 1:
+            self.revive_timer -= 1
+        #------
+
+        if self.revive_timer == 0:
+            self.move(global_ent_map)
+            self.draw(sc, color)
