@@ -1,6 +1,9 @@
-#TYPE:FROZEN
+#TYPE:DEV
 import pygame
 import random
+
+import entity
+import interface
 import player
 import location
 
@@ -35,6 +38,18 @@ sandras_field_1 = location.Location(-1, -1, -1, 0, 1, "sandras_field_1",  "sandr
 locations.append(spawn_forest)
 locations.append(sandras_field_1)
 
+global_entities_map = []
+spawn_forest_entities = []
+global_entities_map.append(spawn_forest_entities)
+
+sandras_field_1_enemies = []
+sandras_field_1_enemies.append(entity.Entity(50, 5, 1, 150, 60, 350, 250, 1, "P", hero))
+global_entities_map.append(sandras_field_1_enemies)
+
+user_interface = interface.Interface()
+
+font1 = pygame.font.Font(None, 15)
+
 pygame.mouse.set_visible(False)
 
 done = False
@@ -49,7 +64,13 @@ while not done:
 
     locations[hero.location].draw(screen)
 
-    hero.update(screen, RED, screen_width, screen_height, locations)
+    hero.update(screen, GRAY, screen_width, screen_height, locations, global_entities_map)
+
+    for i in global_entities_map:
+        for j in i:
+            j.update(screen, BLUE)
+
+    user_interface.draw(screen, hero.hp, hero.maxhp, font1)
 
     pygame.display.flip()
     clock.tick(60)
