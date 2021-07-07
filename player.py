@@ -2,27 +2,47 @@ import pygame
 
 
 class Player:
-    def __init__(self, x_pos, y_pos, health, exp, damage, speed):
+    def __init__(self, x_pos, y_pos):
         self.x = x_pos
         self.y = y_pos
-        self.hp = health
-        self.maxhp = health
-        self.xp = exp
-        self.dmg = damage
-        self.spd = speed
+        self.maxhp = 100
+        self.hp = self.maxhp
+        self.exp = 0
+
+        self.level = 1
+        self.money = 0
+        self.dmg = 10
+        self.spd = 2
+        self.regen_speed = 0.2
+        self.armor = 0
         self.radius = 15
         self.location = 0
+        self.isAttacked = False
+        self.attackers_count = 0
 
         self.attack_timer = 0
         self.max_attack_timer = 100
         self.revive_timer = 0
         self.max_revive_timer = 2000
 
+        self.levels = [0, 5, 15, 100, 300, 1000, 999999]
+        self.level_reward = [[0, 0, 0], [3, 1, 15], [3, 1, 15], [3, 1, 15], [3, 1, 15], [3, 1, 15]]  # damage, armor, maxHP
+
     def get_damage(self, damage):
         self.hp -= damage
 
         if self.hp <= 0:
             self.revive_timer = self.max_revive_timer
+            self.money = round(self.money * 0.8)
+
+    def increase_decrease_attackers(self, plus_minus):
+        self.attackers_count += plus_minus
+
+    def get_money(self, money):
+        self.money += money
+
+    def get_exp(self, experience):
+        self.exp += experience
 
     def draw(self, sc, color):
         pygame.draw.circle(sc, color, (self.x, self.y), self.radius)
@@ -42,12 +62,13 @@ class Player:
         if keys[pygame.K_RETURN]:
             if self.attack_timer == 0:
                 for i in global_ent_map[self.location]:
-                    if abs(self.x - i.x) <= (self.radius * 1.5 + i.radius) and abs(self.y - i.y) <= (self.radius * 1.5 + i.radius):
+                    if abs(self.x - i.x) <= (self.radius * 1.5 + i.radius) and abs(self.y - i.y) <= (self.radius * 1.5 + i.radius) and i.revive_timer == 0:
                         i.get_damage(self.dmg)
                         i.setBehaviorAggressive()
                         i.dead_check()
 
                         self.attack_timer = self.max_attack_timer
+                        break
 
     def update(self, sc, color, sc_w, sc_h, loc_arr, global_ent_map):
         if self.x <= self.radius:  # left corner
@@ -91,7 +112,17 @@ class Player:
         elif self.revive_timer > 1:
             self.revive_timer -= 1
         #------
+        if self.attackers_count == 0 and self.hp < self.maxhp and self.revive_timer == 0:
+            self.hp += self.regen_speed
+            if self.hp >= self.maxhp:
+                self.hp = self.maxhp
 
         if self.revive_timer == 0:
             self.move(global_ent_map)
             self.draw(sc, color)
+
+        if self.exp >= self.levels[self.level]:
+            self.dmg += self.level_reward[self.level][0]
+            self.armor += self.level_reward[self.level][1]
+            self.maxhp += self.level_reward[self.level][2]
+            self.level += 1
