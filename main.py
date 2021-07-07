@@ -1,4 +1,4 @@
-#TYPE:FROZEN
+#TYPE:DEV
 import pygame
 
 import entity
