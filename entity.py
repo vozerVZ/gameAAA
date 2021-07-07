@@ -1,19 +1,28 @@
 import pygame
 import random
+#hp, dmg, spd, behavior, name, color, money_reward, exp_reward
+entities_arr = [[50, 5, 1, "P", "scarecrow", [135, 206, 250], 10, 1],
+                [100, 10, 1, "A", "sheep", [255, 182, 193], 10, 10]]
 
 
 class Entity:
-    def __init__(self, health, damage, speed, xlc, ylc, xrc, yrc, loc, beh_type, player_class):
+    def __init__(self, id_e, xlc, ylc, xrc, yrc, loc, player_class):
+        self.maxhp = entities_arr[id_e][0]
+        self.hp = self.maxhp
+        self.dmg = entities_arr[id_e][1]
+        self.spd = entities_arr[id_e][2]
+        self.type = entities_arr[id_e][3]  # Friendly(F), passive(P), aggressive(A)
+        self.name = entities_arr[id_e][4]
+        self.color = entities_arr[id_e][5]
+        self.money_reward = entities_arr[id_e][6]
+        self.exp_reward = entities_arr[id_e][7]
+
         self.radius = 15
+        self.agr_radius = self.radius * 5
         self.x = xlc + self.radius
         self.y = ylc + self.radius
-        self.hp = health
-        self.maxhp = health
-        self.dmg = damage
-        self.spd = speed
         self.location = loc
         self.player_class = player_class
-        self.type = beh_type  # Friendly(F), passive(P), aggressive(A)
         self.status = "W"  # Wandering(W), attacking(A)
 
         self.x_left_corner = xlc
@@ -31,6 +40,8 @@ class Entity:
 
     def setBehaviorAggressive(self):
         if self.type == "P" or self.type == "A":
+            if self.status != "A":
+                self.player_class.increase_decrease_attackers(1)
             self.status = "A"
 
     def drop_count(self):
@@ -40,14 +51,19 @@ class Entity:
         if self.hp <= 0:
             self.revive_timer = self.max_revive_timer
             self.drop_count()
+            self.player_class.increase_decrease_attackers(-1)
+            self.player_class.get_money(self.money_reward)
+            self.player_class.get_exp(self.exp_reward)
 
     def get_damage(self, damage):
         self.hp -= damage
 
-    def draw(self, sc, color):
+    def draw(self, sc, font):
         if self.location == self.player_class.location:
-            pygame.draw.circle(sc, color, (self.x, self.y), self.radius)
+            pygame.draw.circle(sc, self.color, (self.x, self.y), self.radius)
             pygame.draw.line(sc, [255, 0, 0], [self.x - self.radius, self.y - self.radius * 1.5], [self.x + (self.radius * 2 / self.maxhp * self.hp) - self.radius, self.y - self.radius * 1.5], 3)
+            name_text = font.render(self.name, 1, [255, 255, 255])
+            sc.blit(name_text, (self.x - self.radius * 1.5, self.y - self.radius * 2.5))
 
     def move(self):
         if self.status == "W":
@@ -86,7 +102,7 @@ class Entity:
                     self.player_class.get_damage(self.dmg)
                     self.attack_timer = self.max_attack_timer
 
-    def update(self, sc, color):
+    def update(self, sc, font):
         #timers
         if self.go_timer == 1:
             self.go_timer = 0
@@ -109,12 +125,21 @@ class Entity:
             self.revive_timer -= 1
 
         #------
+        if self.type == "A" and abs(self.player_class.x - self.x) < self.agr_radius and abs(self.player_class.y - self.y) < self.agr_radius and self.player_class.location == self.location:
+            if self.status != "A":
+                self.player_class.increase_decrease_attackers(1)
+            self.status = "A"
+
         if self.player_class.revive_timer > 0 and self.status == "A":
             self.status = "W"
+            self.player_class.increase_decrease_attackers(-1)
+            self.hp = self.maxhp
 
-        if self.location != self.player_class.location and self.status == "A":
+        if self.location != self.player_class.location and self.status == "A" and self.revive_timer == 0:
             self.status = "W"
+            self.player_class.increase_decrease_attackers(-1)
+            self.hp = self.maxhp
 
         if self.revive_timer == 0:
             self.move()
-            self.draw(sc, color)
+            self.draw(sc, font)
