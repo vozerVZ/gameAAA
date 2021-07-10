@@ -1,7 +1,8 @@
 import pygame
 import random
 #hp, dmg, spd, behavior, name, color, money_reward, exp_reward
-entities_arr = [[50, 5, 1, "P", "scarecrow", [135, 206, 250], 10, 1],
+entities_arr = [[1, 0, 1, "F", "butterfly", [255, 255, 0], 0, 0],
+                [50, 5, 1, "P", "scarecrow", [135, 206, 250], 10, 1],
                 [100, 10, 1, "A", "sheep", [255, 182, 193], 10, 10]]
 
 
@@ -19,8 +20,6 @@ class Entity:
 
         self.radius = 15
         self.agr_radius = self.radius * 5
-        self.x = xlc + self.radius
-        self.y = ylc + self.radius
         self.location = loc
         self.player_class = player_class
         self.status = "W"  # Wandering(W), attacking(A)
@@ -37,6 +36,9 @@ class Entity:
         self.max_attack_timer = 100
         self.revive_timer = 0
         self.max_revive_timer = 2000
+
+        self.x = random.randint(self.x_left_corner + self.radius, self.x_right_corner - self.radius)
+        self.y = random.randint(self.y_left_corner + self.radius, self.y_right_corner - self.radius)
 
     def setBehaviorAggressive(self):
         if self.type == "P" or self.type == "A":
