@@ -7,7 +7,9 @@ undefined_tile_M = pygame.transform.scale(pygame.image.load("res/tiles/undefined
 dirt_tile_M = pygame.transform.scale(pygame.image.load("res/tiles/dirt.png"), (tile_w, tile_h))
 grass_tile_M = pygame.transform.scale(pygame.image.load("res/tiles/grass.png"), (tile_w, tile_h))
 rock_tile_M = pygame.transform.scale(pygame.image.load("res/tiles/rock.png"), (tile_w, tile_h))
-tiles = [dirt_tile_M, grass_tile_M, rock_tile_M]
+wood_tile_M = pygame.transform.scale(pygame.image.load("res/tiles/wood.png"), (tile_w, tile_h))
+water_tile_M = pygame.transform.scale(pygame.image.load("res/tiles/water.png"), (tile_w, tile_h))
+tiles = [dirt_tile_M, grass_tile_M, rock_tile_M, wood_tile_M, water_tile_M]
 
 
 class Interface:
@@ -19,12 +21,12 @@ class Interface:
             pygame.draw.rect(sc, [162, 95, 42], (0, 0, 101, 70))  # left&up rect
             pygame.draw.rect(sc, [150, 75, 0], (0, 0, 800, 600), 15)  # screen frame
 
-            pygame.draw.rect(sc, [162, 95, 42], (800 - 32 * tile_w - 20, 600 - 24 * tile_h - 20, 32 * tile_w + 10, 24 * tile_h + 10), 5)  # minimap rect
+            pygame.draw.rect(sc, [162, 95, 42], (800 - 32 * tile_w - 14, 600 - 24 * tile_h - 14, 32 * tile_w + 6, 24 * tile_h + 6), 5)  # minimap rect
 
             for x in range(32):
                 for y in range(24):
                     if int(loc_map[y][x]) < len(tiles):
-                        sc.blit(tiles[int(loc_map[y][x])], (625 + x * tile_w, 465 + y * tile_h))
+                        sc.blit(tiles[int(loc_map[y][x])], (629 + x * tile_w, 469 + y * tile_h))
                     else:
                         sc.blit(undefined_tile_M, (1, 1))
 
@@ -50,3 +52,6 @@ class Interface:
 
         money_text = font.render(str(money) + " coins", 1, [255, 255, 0])
         sc.blit(money_text, (10, 57))  # money text
+
+        #money_text = font.render(str(x_player//25) + "/" + str(y_player//25), 1, [0, 0, 255])
+        #sc.blit(money_text, (10, 80))
