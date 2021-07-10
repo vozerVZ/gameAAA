@@ -16,7 +16,7 @@ class Player:
         self.regen_speed = 0.2
         self.armor = 0
         self.radius = 15
-        self.location = 0
+        self.location = 1
         self.isAttacked = False
         self.attackers_count = 0
 
@@ -47,17 +47,36 @@ class Player:
     def draw(self, sc, color):
         pygame.draw.circle(sc, color, (self.x, self.y), self.radius)
 
-    def move(self, global_ent_map):
+    def move(self, global_ent_map, relief_map):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_w]:
-            self.y -= self.spd
+            x_cell = self.x // 25
+            y_cell = (self.y - self.radius - 1) // 25
+
+            if (y_cell < 0) or (relief_map[y_cell][x_cell] == '0'):
+                self.y -= self.spd
+
         if keys[pygame.K_a]:
-            self.x -= self.spd
+            x_cell = (self.x - self.radius - 1) // 25
+            y_cell = self.y // 25
+
+            if (x_cell < 0) or (relief_map[y_cell][x_cell] == '0'):
+                self.x -= self.spd
+
         if keys[pygame.K_s]:
-            self.y += self.spd
+            x_cell = self.x // 25
+            y_cell = (self.y + self.radius + 1) // 25
+
+            if (y_cell > 23) or (relief_map[y_cell][x_cell] == '0'):
+                self.y += self.spd
+
         if keys[pygame.K_d]:
-            self.x += self.spd
+            x_cell = (self.x + self.radius + 1) // 25
+            y_cell = self.y // 25
+
+            if (x_cell > 31) or (relief_map[y_cell][x_cell] == '0'):
+                self.x += self.spd
 
         if keys[pygame.K_RETURN]:
             if self.attack_timer == 0:
@@ -118,7 +137,7 @@ class Player:
                 self.hp = self.maxhp
 
         if self.revive_timer == 0:
-            self.move(global_ent_map)
+            self.move(global_ent_map, loc_arr[self.location].location_relief_matrix)
             self.draw(sc, color)
 
         if self.exp >= self.levels[self.level]:
